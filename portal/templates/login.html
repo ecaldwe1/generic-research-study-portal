@@ -1,0 +1,70 @@
+{% extends 'gentelella-portal-base.html' %}
+{% block content %}
+<div class="right_col" role="main" style="min-height: 963px;">
+          <div class="">
+            <div class="page-title">
+              <div class="title_left">
+                <h3>Welcome to the Portal</h3>
+              </div>
+
+            </div>
+            <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>Log In</h2>
+
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+
+                    <form class="form-horizontal form-label-left" novalidate="" action="{% url 'login' %}" method="POST">
+                        <!-- next field -->
+                        <input type="hidden" name="next" value="{{ next }}" />
+
+                        <!-- CSRF Token -->
+                        {% csrf_token %}
+
+                        {% if error and error == 'incorrect login' %}
+                        <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">x</span>
+                            </button>
+                            <strong>Error!</strong> Username/password incorrect.
+                          </div>
+                        {% endif %}
+
+                        <!-- Username -->
+                      <div class="item form-group {% if error and error == 'missing username' %}bad{% endif %}">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="name">Username <span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                          <input name="username" class="form-control col-md-7 col-xs-12" data-validate-length-range="6" data-validate-words="2" name="name" placeholder="Username" required="required" type="text">
+                        </div>
+                      <div class="alert">Your username is required to login</div></div>
+
+                        <!-- Password -->
+                        <div class="item form-group {% if error and error == 'missing password' %}bad{% endif %}">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="name">Password <span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                          <input name="password" class="form-control col-md-7 col-xs-12" data-validate-length-range="6" data-validate-words="2" name="name" placeholder="Password" required="required" type="password">
+                        </div>
+                      <div class="alert">Your password is required to login</div></div>
+
+                      <div class="ln_solid"></div>
+                      <div class="form-group">
+                        <div class="col-md-6 col-md-offset-3">
+                          <button id="send" type="submit" class="btn btn-success">Login</button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+{% endblock %}

@@ -1,0 +1,25 @@
+<!-- begin of issue notes -->
+<ul class="messages">
+    {% if note_list %}
+        {% for item in note_list %}
+            <li id="note_list_item">
+                <div class="message_date" data-toggle="tooltip"
+                     data-placement="left" title="{{ item.date }}">
+                    <h3 class="date text-info">{{ item.date.date.day }}</h3>
+                    <h4 class="month">{{ item.date|date:"F" }}</h4>
+                </div>
+                <div class="message_wrapper">
+                    <h4 class="heading">{{ item.author.name }}</h4>
+                    <blockquote class="message">
+                        {{ item.note }}
+                    </blockquote>
+                    <br/>
+                    <br/>
+                </div>
+            </li>
+        {% endfor %}
+    {% else %}
+        <h4 class="text-center" style="padding-top:25px">No Notes Yet</h4>
+    {% endif %}
+</ul>
+<!-- end of issue notes -->

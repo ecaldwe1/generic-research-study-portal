@@ -1,0 +1,257 @@
+{% extends 'gentelella-portal-base.html' %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock title %}
+
+{% block top_js %}
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+{% endblock top_js %}
+
+{% block content %}
+    <!-- page content -->
+    <div class="right_col" role="main">
+        <div>
+
+            <div class="clearfix"></div>
+
+            <!-- Unassigned Issues block -->
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>Unassigned Issues</h2>
+                            <ul class="nav navbar-right panel_toolbox">
+                                <li class="pull-right"><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <!-- start accordion -->
+                            <div class="accordion" id="accordion" role="tablist" aria-multiselectable="true">
+                                <div class="panel">
+                                    <a class="panel-heading" role="tab" id="headingOne" data-toggle="collapse"
+                                       data-parent="#accordion" href="#unassignedCollapse" aria-expanded="true"
+                                       aria-controls="unassignedCollapse">
+                                        <h4 class="panel-title">Filter by Issue Status</h4>
+                                    </a>
+                                    <div id="unassignedCollapse" class="panel-collapse collapse" role="tabpanel"
+                                         aria-labelledby="headingOne">
+                                        <div class="panel-body">
+                                            <!-- Filter form -->
+                                            <form data-parsley-validate>
+                                                {% csrf_token %}
+                                                <div class="form-group">
+                                                    <label>Status:</label>
+                                                    <div id="checkboxes">
+                                                        {% for status in status_list %}
+                                                            <div class="checkbox">
+                                                                <label>
+                                                                    <input type="checkbox"
+                                                                           id="unassigned_issue_status_checkbox"
+                                                                           name="{{ status.status }}" class="flat">
+                                                                    {{ status.status }}
+                                                                </label>
+                                                            </div>
+                                                        {% endfor %}</div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <div class="col-md-12 col-sm-12 col-xs-12 ">
+                                                        <button id="unassigned_filter_status_btn"
+                                                                class="btn btn-success btn-sm">
+                                                            Filter
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </form> <!-- end Filter form -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div><!-- end of accordion -->
+                            <br/>
+                            <div id="unassigned_issues_list"></div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End Unassigned Issues -->
+
+            <!-- Assigned Issues block -->
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>My Assigned Issues</h2>
+                            <ul class="nav navbar-right panel_toolbox">
+                                <li class="pull-right"><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <!-- start accordion -->
+                            <div class="accordion" id="accordion" role="tablist" aria-multiselectable="true">
+                                <div class="panel">
+                                    <a class="panel-heading" role="tab" id="headingOne" data-toggle="collapse"
+                                       data-parent="#accordion" href="#collapseOne" aria-expanded="true"
+                                       aria-controls="collapseOne">
+                                        <h4 class="panel-title">Filter by Issue Status</h4>
+                                    </a>
+                                    <div id="collapseOne" class="panel-collapse collapse" role="tabpanel"
+                                         aria-labelledby="headingOne">
+                                        <div class="panel-body">
+                                            <!-- Filter form -->
+                                            <form data-parsley-validate>
+                                                {% csrf_token %}
+                                                <div class="form-group">
+                                                    <label>Status:</label>
+                                                    <div id="checkboxes">
+                                                        {% for status in status_list %}
+                                                            <div class="checkbox">
+                                                                <label>
+                                                                    <input type="checkbox" id="issue_status_checkbox"
+                                                                           name="{{ status.status }}" class="flat">
+                                                                    {{ status.status }}
+                                                                </label>
+                                                            </div>
+                                                        {% endfor %}</div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <div class="col-md-12 col-sm-12 col-xs-12 ">
+                                                        <button id="filter_status_btn" class="btn btn-success btn-sm">
+                                                            Filter
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </form> <!-- end Filter form -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end of accordion -->
+                            <br/>
+                            <div id="assigned_issue_list"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End Assigned Issues -->
+
+            <div class="clearfix"></div>
+
+        </div>
+        <!-- end row -->
+
+    </div>
+    <br/><br/>
+    </div>
+{% endblock content %}
+
+{% block js %}
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            // Assigned Issues Filter by Status
+            $.each($("input[id='issue_status_checkbox']"), function () {
+                $(this).prop('checked', true);
+            });
+
+            var selected = [];
+            $.each($("input[id='issue_status_checkbox']"), function () {
+                if ($(this).is(':checked')) {
+                    selected.push($(this).attr('name'));
+                }
+            });
+            getIssues(selected);
+
+            $("#filter_status_btn").click(function (e) {
+                e.preventDefault();
+                var selected = [];
+                $.each($("input[id='issue_status_checkbox']"), function () {
+                    if ($(this).is(':checked')) {
+                        selected.push($(this).attr('name'));
+                    }
+                });
+                getIssues(selected);
+            });
+
+
+            // UnAssigned Issues Filter by Status
+            $.each($("input[id='unassigned_issue_status_checkbox']"), function () {
+                $(this).prop('checked', true);
+            });
+
+            var selected = [];
+            $.each($("input[id='unassigned_issue_status_checkbox']"), function () {
+                if ($(this).is(':checked')) {
+                    selected.push($(this).attr('name'));
+                }
+            });
+            getUnassignedIssues(selected);
+
+            $("#unassigned_filter_status_btn").click(function (e) {
+                e.preventDefault();
+                var selected = [];
+                $.each($("input[id='unassigned_issue_status_checkbox']"), function () {
+                    if ($(this).is(':checked')) {
+                        selected.push($(this).attr('name'));
+                    }
+                });
+                getUnassignedIssues(selected);
+            });
+        });
+
+
+        // Filter assigned issues
+        function getIssues(selected_issue_statuses) {
+            console.log("Filtering issues by status...");
+            console.log(selected_issue_statuses);
+
+            $.ajax({
+                type: "GET",
+                url: "/portal/staff-dashboard/filter-issues/",
+                data: {
+                    selected_issue_statuses: selected_issue_statuses
+                },
+                dataType: "html",
+                success: function (result) {
+                    console.log("SUCCESS!");
+                    $("#assigned_issue_list").html('').append(result);
+
+                },
+                error: function (result) {
+                    console.log("ERROR:", result)
+                }
+            });
+        }
+
+        // Filter assigned issues
+        function getUnassignedIssues(selected_issue_statuses) {
+            console.log("Filtering unassigned issues by status...");
+            console.log(selected_issue_statuses);
+
+            $.ajax({
+                type: "GET",
+                url: "/portal/staff-dashboard/filter-unassigned-issues/",
+                data: {
+                    selected_issue_statuses: selected_issue_statuses
+                },
+                dataType: "html",
+                success: function (result) {
+                    console.log("SUCCESS!");
+                    $("#unassigned_issues_list").html('').append(result);
+
+                },
+                error: function (result) {
+                    console.log("ERROR:", result)
+                }
+            });
+        }
+
+    </script>
+{% endblock js %}

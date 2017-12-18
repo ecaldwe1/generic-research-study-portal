@@ -1,0 +1,166 @@
+{% extends 'gentelella-portal-base.html' %}
+{% load static %}
+
+{% block title %}
+    Issue Detail
+{% endblock title %}
+
+{% block content %}
+
+    <!-- page content -->
+    <div class="right_col" role="main">
+        <div class="">
+
+            <!--TODO: Maybe put a breadcrumb here eventually if desired -->
+
+            <div class="page-title">
+                <div class="title_left">
+                    <h3><i class="fa fa-bug"></i> Issue Detail</h3>
+                </div>
+
+                <div class="clearfix"></div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="x_panel">
+                            <div class="x_title">
+                                <h2>Issue #{{ issue.id }}</h2>
+                                <div class="clearfix"></div>
+                            </div>
+
+                            <div class="x_content">
+
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+
+                                    <ul class="stats-overview text-center">
+                                        <li style="width:15%">
+                                            <span class="name"> Status </span>
+                                            <span class="value text-primary"> {{ issue.status.status }} </span>
+                                        </li>
+                                        <li class="name" style="width:20%">
+                                            <span class="name"> Category </span>
+                                            <span class="value text-primary"> {{ issue.category.name }} </span>
+                                        </li>
+                                        <li class="name" style="width:25%">
+                                            <span class="name"> Last Updated </span>
+                                            <span class="value text-primary"> {{ issue.last_updated }} </span>
+                                        </li>
+                                    </ul>
+                                    <br/>
+
+                                    <section class="panel">
+                                        <!-- begin of issue details -->
+                                        <div class="panel-body">
+                                            <h3 class="blue">{{ issue.subject }}</h3>
+
+                                            <p>{{ issue.description }}</p>
+                                            <br/>
+
+                                            <div class="project_detail">
+                                                <p class="title">Date Reported</p>
+                                                <p>{{ issue.date_reported }}</p>
+                                                <p class="title">Reported By</p>
+                                                <p>{{ issue.reported_by_participant.participant_id }}</p>
+                                                <p class="title">Preferred Contact Method</p>
+                                                <p>{{ issue.preferred_contact_method.contact_method }}</p>
+                                            </div>
+
+                                            <br/>
+
+                                            <div class="text-center mtop20">
+                                                <span id="add_note_btn" class="btn btn-primary">Add Note</span>
+                                                {% if request.user.is_staff %}
+                                                    <a id="update_issue_btn" class="btn btn-warning"
+                                                       href="{% url "portal:issues:admin_issues_update" pk=issue.id %}">
+                                                        Update Issue</a>
+                                                {% endif %}
+                                                <a href="#" class="btn btn-danger">Close Issue</a>
+                                            </div>
+                                        </div>
+                                    </section>
+                                    <!-- end of issue details -->
+
+                                    <div class="add_note_form" style="padding-bottom: 50px">
+                                            <div class="form-group">
+                                                <label for="message">Note</label>
+                                                <textarea id="message" required="required" class="form-control"
+                                                          name="new_note_textarea" data-parsley-trigger="keyup"
+                                                          data-parsley-minlength="1"
+                                                          data-parsley-minlength-message="Please enter a note"
+                                                          data-parsley-validation-threshold="10"></textarea>
+                                            </div>
+                                            <div class="form-group">
+                                                <button id="submit_note_btn" type="submit"
+                                                        class="btn btn-primary pull-right">
+                                                    Submit Note
+                                                </button>
+                                            </div>
+                                    </div>
+
+                                    <div id="issue_notes_list">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /page content -->
+{% endblock content %}
+
+{% block js %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $(".add_note_form").addClass("hidden");
+
+            getNotes({{ issue.id }});
+
+            $("#submit_note_btn").click(function() {
+                $.ajax({
+                    type: "GET",
+                    url: "{% url 'portal:issues:submit_note' %}",
+                    data: {'note': $("#message").val(), 'issue_id': {{ issue.id }}},
+                    dataType: 'html',
+                    success: function(data){
+                        $("#message").val('');
+                        $(".add_note_form").addClass("hidden");
+                        getNotes({{ issue.id }});
+                    }
+                })
+            });
+        });
+
+
+        // When the Add Note btn is clicked, show the Add Note Form
+        $("#add_note_btn").click(function(){
+            $(".add_note_form").removeClass("hidden");
+            // The height needs to be reset so that the background of the column extends to hold the full notes list
+            // when the add_note_form is displayed
+            $(".right_col").css("height", "1800")
+        });
+
+        // Show the tooltips with the full datetime object
+        $('.message_date').tooltip(options);
+
+
+        function getNotes(issue_id) {
+            $.ajax({
+                    type: "GET",
+                    url: "{% url 'portal:issues:get_note_list' %}",
+                    data: { 'issue_id': issue_id },
+                    dataType: 'html',
+                    success: function(data){
+                        console.log(data);
+                        $("#issue_notes_list").html(data);
+                    }
+                })
+        }
+    </script>
+{% endblock %}
+
+{% block top_js %}
+
+{% endblock %}

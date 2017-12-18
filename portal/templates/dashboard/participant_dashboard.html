@@ -1,0 +1,292 @@
+{% extends 'gentelella-portal-base.html' %}
+{% load static %}
+{#{% load mark_js_safe %}#}
+
+{% block title %}Dashboard{% endblock title %}
+
+{% block content %}
+    <!-- page content -->
+    <div class="right_col" role="main">
+        <div>
+
+            <div class="clearfix"></div>
+
+            <!-- Compliance row -->
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>My Compliance
+                                <small> {{ current_month }}</small>
+                            </h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+
+                            <div class="row text-center"
+                                 style="border-bottom: 1px solid #E0E0E0; padding-bottom: 5px; margin-bottom: 5px;">
+                                <div class="col-md-3 col-sm-3 col-xs-6 tile_stats_count">
+                                    <span class="count_top"><strong>Overall</strong></span>
+                                    <div><h3 class="compliance-number"
+                                             id="overall-compliance">{{ months_overall_compliance }}%</h3></div>
+                                </div>
+                                <a href="{% url 'portal:compliance:survey_compliance' %}">
+                                    <div class="col-md-3 col-sm-3 col-xs-6 tile_stats_count compliance-history-hover">
+                                        <span class="count_top">
+                                            <i class="fa fa-check-square"></i> <u>Surveys</u>
+                                        </span>
+
+                                        <div><h3 class="compliance-number"
+                                                 id="survey-compliance">{{ months_survey_compliance }}%</h3></div>
+                                    </div>
+                                </a>
+                                <a href="{% url 'portal:compliance:wearable_compliance' %}">
+                                    <div class="col-md-3 col-sm-3 col-xs-6 tile_stats_count compliance-history-hover">
+                                        <span class="count_top">
+                                            <i class="fa fa-heartbeat"></i> <u>Wearable</u>
+                                        </span>
+
+                                        <div><h3 class="compliance-number"
+                                                 id="wearable-compliance">{{ months_wearable_compliance }}%</h3></div>
+                                    </div>
+                                </a>
+                                <a href="{% url 'portal:compliance:phone_agent_compliance' %}">
+                                    <div class="col-md-3 col-sm-3 col-xs-6 tile_stats_count compliance-history-hover">
+                                    <span class="count_top">
+                                        <i class="fa fa-phone-square"></i> <u>Phone Agent</u>
+                                    </span>
+                                        <div><h3 class="compliance-number"
+                                                 id="phone-agent-compliance">{{ months_phone_agent_compliance }}%</h3>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- end Compliance row -->
+
+            <!-- Issues & Payments row -->
+            <div class="row">
+
+                <!-- Issues block -->
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>My Issues</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            {% for issue in reported_issues %}
+                                <article class="media event">
+                                    <a class="pull-left date">
+                                        <p class="month">{{ issue.date_reported|date:"M" }}</p>
+                                        <p class="day">{{ issue.date_reported.day }}</p>
+                                    </a>
+                                    <div class="media-body">
+                                        <div class="col-md-8">
+                                            <a class="title tesserae-blue"
+                                               href="{% url 'portal:issues:issue_details' pk=issue.id %}">{{ issue.subject }}</a>
+                                            <p>Assigned to: {{ issue.assigned_to.name }}</p>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <span class="badge pull-right tesserae-gray-bkgrd">{{ issue.status }}</span>
+                                        </div>
+                                    </div>
+                                </article>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <!-- End Issues -->
+
+                <!-- Payments block -->
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>My Payments</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            {% for payment in my_payments %}
+                            <article class="media event">
+                                <a class="pull-left date">
+                                    <p class="month">{{ payment.payment_date|date:"M" }}</p>
+                                    <p class="day">{{ payment.payment_date.day }}</p>
+                                </a>
+                                <div class="media-body">
+                                    <div><strong>Payment Notice</strong></div>
+                                    <p>${{ payment.payment_amount }} was added to your card.</p>
+                                </div>
+                            </article>
+                            {% endfor %}
+                        <div class="ln_solid"></div>
+                        <a class="btn btn-primary btn-large btn-block"
+                           href="{% url 'portal:payments:payment_history' %}">Payment History</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- End Payments -->
+
+                <div class="clearfix"></div>
+
+            </div><!-- end row -->
+
+        </div>
+        <br/><br/>
+    </div>
+{% endblock content %}
+
+{% block js %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".compliance-number").each(function () {
+                var compliance_percent = $(this).text();
+                var compliance_number = parseInt(compliance_percent);
+
+                if (compliance_number >= 80) {
+                    $(this).addClass("good-compliance-color")
+                } else {
+                    $(this).addClass("bad-compliance-color")
+                }
+            });
+            var survey_compliance = '{{ months_survey_compliance }}';
+            var wearable_compliance = '{{ months_wearable_compliance }}';
+            var phone_agent_compliance = '{{ months_phone_agent_compliance }}';
+            var overall_compliance = '{{ months_overall_compliance }}';
+            init_compliance_gauges(parseInt(survey_compliance), parseInt(wearable_compliance), parseInt(phone_agent_compliance), parseInt(overall_compliance));
+        });
+
+
+        function determine_gauge_settings(compliance_value) {
+
+            var good_chart_gauge_settings = {
+                lines: 12,
+                angle: 0,
+                lineWidth: 0.4,
+                pointer: {
+                    length: 0.75,
+                    strokeWidth: 0.042,
+                    color: '#1D212A'
+                },
+                limitMax: 'false',
+                colorStart: '#1ABB9C',
+                colorStop: '#1ABB9C',
+                strokeColor: '#F0F3F3',
+                generateGradient: true,
+                staticZones: [
+                    {strokeStyle: "#000000", min: 79, max: 80}
+                ]
+            };
+
+            var bad_chart_gauge_settings = {
+                lines: 12,
+                angle: 0,
+                lineWidth: 0.4,
+                pointer: {
+                    length: 0.75,
+                    strokeWidth: 0.042,
+                    color: '#1D212A'
+                },
+                limitMax: 'false',
+                colorStart: '#E74C3C',
+                colorStop: '#E74C3C',
+                strokeColor: '#F0F3F3',
+                generateGradient: true,
+                staticZones: [
+                    {strokeStyle: "#000000", min: 79, max: 80}
+                ]
+            };
+
+            var gauge_settings = good_chart_gauge_settings;
+                if(compliance_value < 80) {
+                    gauge_settings = bad_chart_gauge_settings;
+                }
+            return gauge_settings
+        }
+
+
+        function init_compliance_gauges(survey_compliance, wearable_compliance, phone_agent_compliance,
+                                        overall_compliance) {
+
+            if (typeof (Gauge) === 'undefined') {
+                return;
+            }
+
+            console.log('init_compliance_gauge [' + $('.gauge-chart').length + ']');
+
+            console.log('init_compliance_gauge');
+
+
+            if ($('#overall_gauge').length) {
+
+                var overall_gauge_elem = document.getElementById('overall_gauge');
+                var gauge_settings = determine_gauge_settings(overall_compliance);
+                var overall_gauge = new Gauge(overall_gauge_elem).setOptions(gauge_settings);
+
+            }
+
+            if ($('#overall-gauge-text').length) {
+
+                overall_gauge.maxValue = 100;
+                overall_gauge.animationSpeed = 100;
+                overall_gauge.set(parseInt(overall_compliance));
+                overall_gauge.setTextField(document.getElementById("overall-gauge-text"));
+
+            }
+
+            if ($('#survey_gauge').length) {
+
+                var survey_gauge_elem = document.getElementById('survey_gauge');
+                var gauge_settings = determine_gauge_settings(survey_compliance);
+                var survey_gauge = new Gauge(survey_gauge_elem).setOptions(gauge_settings);
+
+            }
+
+            if ($('#survey-gauge-text').length) {
+
+                survey_gauge.maxValue = 100;
+                survey_gauge.animationSpeed = 100;
+                survey_gauge.set(parseInt(survey_compliance));
+                survey_gauge.setTextField(document.getElementById("survey-gauge-text"));
+
+            }
+
+            if ($('#wearable_gauge').length) {
+
+                var wearable_gauge_elem = document.getElementById('wearable_gauge');
+                var gauge_settings = determine_gauge_settings(wearable_compliance);
+                var wearable_gauge = new Gauge(wearable_gauge_elem).setOptions(gauge_settings);
+
+            }
+
+            if ($('#wearable-gauge-text').length) {
+
+                wearable_gauge.maxValue = 100;
+                wearable_gauge.animationSpeed = 100;
+                wearable_gauge.set(parseInt(wearable_compliance));
+                wearable_gauge.setTextField(document.getElementById("wearable-gauge-text"));
+
+            }
+
+            if ($('#phoneagent_gauge').length) {
+
+                var phoneagent_gauge_elem = document.getElementById('phoneagent_gauge');
+                var gauge_settings = determine_gauge_settings(phone_agent_compliance);
+                var phoneagent_gauge = new Gauge(phoneagent_gauge_elem).setOptions(gauge_settings);
+
+            }
+
+
+            if ($('#phoneagent-gauge-text').length) {
+
+                phoneagent_gauge.maxValue = 100;
+                phoneagent_gauge.animationSpeed = 100;
+                phoneagent_gauge.set(parseInt(phone_agent_compliance));
+                phoneagent_gauge.setTextField(document.getElementById("phoneagent-gauge-text"));
+
+            }
+        }
+    </script>
+{% endblock %}

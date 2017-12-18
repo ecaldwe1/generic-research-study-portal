@@ -1,0 +1,88 @@
+{% extends 'gentelella-portal-base.html' %}
+{% load static %}
+
+{% block content %}
+    <!-- page content -->
+    <div class="right_col" role="main">
+{#        <div class="">#}
+            <div class="page-title">
+                <div class="title_left">
+                    <h3>Issues</h3>
+                </div>
+            </div>
+
+
+            <div class="clearfix"></div>
+
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>
+                                {% if request.user.is_staff %}
+                                    Issues List
+                                {% else %}
+                                    My Issues
+                                {% endif %}
+                            </h2>
+                            <div class="clearfix"></div>
+                        </div>
+
+                        <div class="x_content">
+                            <div><p></p></div>
+                            <div class="table-responsive">
+                                <table class="table jambo_table">
+                                    <thead>
+                                    <tr class="headings">
+                                        <th class="column-title">ID</th>
+                                        <th class="column-title">Status</th>
+                                        <th class="column-title">Category</th>
+                                        <th class="column-title">Subject</th>
+                                        <th class="column-title">Date Reported</th>
+                                        <th class="column-title">Assigned To</th>
+                                        <th class="column-title">Last Updated</th>
+                                        <th class="column-title"></th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+                                    {% for issue in issue_list %}
+                                        <tr>
+                                            <td class=" ">{{ issue.id }}</td>
+                                            <td class=" ">{{ issue.status }}</td>
+                                            <td class=" ">{{ issue.category }}</td>
+                                            <td class=" ">{{ issue.subject }}</td>
+                                            <td class=" ">{{ issue.date_reported }}</td>
+                                            <td class=" ">
+                                                {% if issue.assigned_to %}
+                                                    {{ issue.assigned_to.name }}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                            <td class=" ">{{ issue.last_updated }}</td>
+                                            <td class=" ">
+                                                <a class="btn btn-primary btn-xs"
+                                                   href="{% url 'portal:issues:issue_details' pk=issue.id %}">
+                                                    Details
+                                                </a>
+                                                {% if request.user.is_staff %}
+                                                    <a class="btn btn-xs btn-warning"
+                                                       href="{% url 'portal:issues:admin_issues_update' pk=issue.id %}">
+                                                        Update
+                                                    </a>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+{#        </div>#}
+    </div>
+{% endblock content %}

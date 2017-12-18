@@ -1,0 +1,17 @@
+{% for issue in issues_list %}
+    <article class="media event">
+        <a class="pull-left date">
+            <p class="month">{{ issue.date_reported|date:"M" }}</p>
+            <p class="day">{{ issue.date_reported.day }}</p>
+        </a>
+        <div class="media-body">
+            <div class="col-md-8">
+                <a class="title tesserae-blue"
+                   href="{% url 'portal:issues:issue_details' pk=issue.id %}">{{ issue.subject }}</a>
+            </div>
+            <div class="col-md-3">
+                <span class="badge pull-right tesserae-gray-bkgrd">{{ issue.status }}</span>
+            </div>
+        </div>
+    </article>
+{% endfor %}

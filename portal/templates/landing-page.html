@@ -1,0 +1,25 @@
+{% extends 'landing-page-base.html' %}
+{% load static %}
+{% load socialaccount %}
+
+
+{% block landing-page-content %}
+
+    <header class="masthead">
+        <div class="header-content">
+            <div class="header-content-inner ">
+                <h1 id="homeHeading" style="padding-top: 100px"><img class="img-responsive center landing-img"
+                                          src="{% static 'images/crc-logos/crc_logo_blue-gold_m.png' %}"
+                                          alt="Center for Research Computing, University of Notre Dame"></h1>
+                <hr>
+                <p>Welcome to the University of Notre Dame - Center for Research Computing Generic Research Study Portal.</p>
+                <p>This portal provides a customizable interface for participants and staff members in your research study.
+                   The project is open-source and hosted on GitHub <a href="#">here</a>.</p>
+                <a class="btn btn-primary btn-lg" href="{% provider_login_url "google" action="reauthenticate" %}">
+                    Log in with Google
+                </a>
+            </div>
+        </div>
+    </header>
+
+{% endblock landing-page-content %}

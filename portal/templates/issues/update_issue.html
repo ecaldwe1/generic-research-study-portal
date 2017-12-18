@@ -1,0 +1,51 @@
+{% extends 'gentelella-portal-base.html' %}
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="right_col" role="main">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>Update a Reported Issue</h3>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+
+        <div class="row" style="padding-bottom: 50px">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Issue #{{ issue.id }}</h2>
+                        <ul class="nav navbar-right pull-right">
+                            <h5>Date Reported: {{ issue.date_reported }}</h5>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content" style="height:100%">
+                        <div class="pull-right">
+                            <h5>Last Updated: {{ issue.last_updated }}</h5>
+                        </div>
+                        <br/><br/>
+                        <form action="" method="post" novalidate>{% csrf_token %}
+                            {% if form.errors %}
+                                <div class="well form-error-well">
+                                    <strong>Please correct the following errors:</strong>
+                                    <br/>
+                                    <br/>
+                                    {{ form.non_field_errors }}
+                                    <ul class="errorlist">
+                                        {% for key,value in form.errors.items %}
+                                            <li><strong>{{ key }}</strong> {{ value }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                            {% crispy form %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
