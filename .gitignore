@@ -45,6 +45,7 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
+
 ### Python template
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -137,11 +138,11 @@ ENV/
 
 # Spyder project settings
 .spyderproject
+.spyproject
 
 # Rope project settings
 .ropeproject
 
-
-
 # Project Specific
 /config/settings/base.py
+
